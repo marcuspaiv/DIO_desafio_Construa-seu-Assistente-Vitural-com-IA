@@ -18,6 +18,7 @@ Assistente financeiro pessoal com IA generativa, desenvolvido como parte do desa
 - ⚡ **Perguntas rápidas** — botões de atalho para as dúvidas mais comuns
 - 🔄 **Dual provider** — funciona com Groq (nuvem) ou Ollama (local), você escolhe
 - 🏦 **Catálogo de produtos** com indicação baseada no perfil do investidor
+- 🔒 **Seguro** — não acessa dados bancários reais; usa apenas dados simulados
 
 ---
 
@@ -34,16 +35,39 @@ Assistente financeiro pessoal com IA generativa, desenvolvido como parte do desa
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## ⚠️ O que o FinBot NÃO faz
 
-| Tecnologia | Finalidade |
-|------------|------------|
-| 🐍 **Python 3.10+** | Linguagem principal |
-| 🖥️ **Streamlit** | Interface web interativa |
-| ⚡ **Groq API** | LLM em nuvem — ultra rápido e gratuito |
-| 🤖 **Ollama** | Alternativa local (llama3.2, mistral, phi3) |
-| 📈 **Plotly** | Gráficos interativos (gauge, pizza, barras) |
-| 🐼 **Pandas** | Manipulação e análise dos dados financeiros |
+- ❌ Não recomenda investimentos específicos como verdade absoluta
+- ❌ Não acessa dados bancários reais ou sensíveis
+- ❌ Não substitui um profissional financeiro certificado (CFP)
+- ❌ Não realiza transações ou movimentações financeiras
+- ❌ Não compartilha dados de outros usuários
+
+---
+
+## 🏗️ Arquitetura
+
+```mermaid
+graph TD
+    A[Usuário] --> B[Streamlit - Interface Web]
+    B --> C{Provedor de IA}
+    C -->|Nuvem - Rápido| D[Groq API - llama-3.1-8b-instant]
+    C -->|Local| E[Ollama - llama3.2 / mistral]
+    D --> F[Sistema de Prompt Personalizado]
+    E --> F
+    F --> G[Base de Conhecimento]
+    G --> H[perfil_investidor.json]
+    G --> I[produtos_financeiros.json]
+    G --> J[transacoes.csv]
+    G --> K[historico_atendimento.csv]
+    F --> L[Resposta Personalizada ao Usuário]
+```
+
+**Stack:**
+- **Interface:** Streamlit
+- **LLM (nuvem):** Groq API — modelo `llama-3.1-8b-instant` (gratuito)
+- **LLM (local):** Ollama — modelos `llama3.2`, `mistral`, `phi3`
+- **Dados:** JSON e CSV simulados fornecidos pelo desafio DIO
 
 ---
 
@@ -72,54 +96,169 @@ finbot-assistente-financeiro/
 
 ---
 
-## ▶️ Como Rodar o Projeto
+## 🛠️ Tecnologias Utilizadas
 
-### 1. Clone o repositório
+| Tecnologia | Finalidade |
+|------------|------------|
+| 🐍 **Python 3.10+** | Linguagem principal |
+| 🖥️ **Streamlit** | Interface web interativa |
+| ⚡ **Groq API** | LLM em nuvem — ultra rápido e gratuito |
+| 🤖 **Ollama** | Alternativa local (llama3.2, mistral, phi3) |
+| 📈 **Plotly** | Gráficos interativos (gauge, pizza, barras) |
+| 🐼 **Pandas** | Manipulação e análise dos dados financeiros |
+
+---
+
+## ▶️ Como Rodar o Projeto (Passo a Passo)
+
+> 💡 Este guia foi escrito para pessoas com pouco ou nenhum conhecimento de programação. Siga cada etapa com calma!
+
+---
+
+### Pré-requisitos
+
+Antes de começar, você precisa ter instalado:
+
+- [Python 3.10+](https://www.python.org/downloads/) — ao instalar, marque a opção **"Add Python to PATH"**
+- [Visual Studio Code](https://code.visualstudio.com/) — editor de código gratuito
+- [Git](https://git-scm.com/downloads/) — para baixar o projeto
+
+---
+
+### 1. Baixe o projeto
+
+Abra o terminal do VSCode (`Ctrl + '`) e execute:
 
 ```bash
 git clone https://github.com/marcuspaiv/finbot-assistente-financeiro.git
 cd finbot-assistente-financeiro
 ```
 
-### 2. Crie o ambiente virtual e instale as dependências
+---
+
+### 2. Crie o ambiente virtual
+
+O ambiente virtual isola as dependências do projeto. No terminal:
 
 ```bash
-python -m venv venv
-source venv/bin/activate   # Linux/Mac
-venv\Scripts\activate      # Windows
+python -m venv .venv
+```
 
+Depois, **ative** o ambiente virtual:
+
+```bash
+# Windows (PowerShell)
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.venv\Scripts\activate
+
+# Linux / Mac
+source .venv/bin/activate
+```
+
+✅ Você saberá que funcionou quando aparecer **`(.venv)`** no início da linha do terminal.
+
+---
+
+### 3. Instale as dependências
+
+Com o ambiente virtual ativo, execute:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure a IA (escolha uma opção)
+Aguarde terminar — pode levar alguns minutos na primeira vez.
 
-**Opção A — Groq (Recomendado ⚡ — gratuito e rápido):**
-- Acesse [console.groq.com](https://console.groq.com) e crie uma conta gratuita
-- Gere uma API Key
-- Cole a chave na barra lateral do app ao executar
+---
 
-**Opção B — Ollama (local):**
-- Certifique-se que o Ollama está instalado e rodando: `ollama serve`
-- Tenha um modelo baixado: `ollama pull llama3.2`
-- Selecione "Ollama (Local)" na barra lateral do app
+### 4. Obtenha sua chave Groq (gratuita)
 
-### 4. Execute o app
+O FinBot usa a **Groq API** para gerar respostas ultrarrápidas. É totalmente gratuito!
+
+1. Acesse [console.groq.com](https://console.groq.com)
+2. Crie uma conta (pode usar o Google)
+3. Clique em **"API Keys"** no menu lateral
+4. Clique em **"Create API Key"** e copie a chave gerada
+
+> 🔑 Guarde essa chave — você vai colá-la no app!
+
+---
+
+### 5. Rode o app
 
 ```bash
 streamlit run app.py
 ```
 
-Acesse em: `http://localhost:8501`
+O navegador abrirá automaticamente em `http://localhost:8501`.
+
+> Se aparecer uma pergunta sobre e-mail, apenas pressione `Enter` para pular.
 
 ---
 
-## 📊 Exemplos de Perguntas ao FinBot
+### 6. Configure a IA no app
 
-- 💬 *"Quanto falta para completar minha reserva de emergência?"*
-- 💬 *"Qual produto você me recomenda agora dado meu perfil?"*
-- 💬 *"Estou no caminho certo para comprar o apartamento?"*
-- 💬 *"Me explique o Tesouro Selic de forma simples."*
-- 💬 *"Quais foram meus maiores gastos este mês?"*
+Na **barra lateral esquerda** do FinBot:
+
+1. Em **Provedor de IA**, selecione **"Groq (Rápido - Recomendado)"**
+2. Cole sua **Groq API Key** no campo indicado
+3. Pronto! Agora é só conversar 🎉
+
+---
+
+### Alternativa: usar Ollama (100% local, sem internet)
+
+Se preferir rodar a IA localmente no seu computador:
+
+1. [Baixe e instale o Ollama](https://ollama.com/download)
+2. No terminal, baixe um modelo:
+   ```bash
+   ollama pull llama3.2
+   ```
+3. Inicie o Ollama:
+   ```bash
+   ollama serve
+   ```
+4. No app, selecione **"Ollama (Local)"** na barra lateral e informe o nome do modelo
+
+> ⚠️ O Ollama é mais lento que o Groq — pode levar entre 5 a 30 segundos por resposta, dependendo do seu computador.
+
+---
+
+## 💬 Exemplos de Conversa
+
+A seguir, alguns exemplos reais de interações com o FinBot:
+
+**Verificando a situação financeira:**
+> 👤 *"Como vão minhas finanças?"*
+>
+> 🤖 *"Você tem uma renda mensal de R$ 5.000,00 e uma reserva de emergência de R$ 10.000,00, o que representa 66,7% da meta de R$ 15.000,00. Isso é um bom início! 📈"*
+
+**Planejando a reserva de emergência:**
+> 👤 *"Quero criar a reserva de emergência."*
+>
+> 🤖 *"Para alcançar R$ 15.000,00, você precisa economizar R$ 1.250,00 por mês. O Tesouro Selic é a melhor opção para você — seguro, com liquidez diária e sem risco."*
+
+**Tentando fugir do assunto:**
+> 👤 *"Qual a previsão do tempo para hoje?"*
+>
+> 🤖 *"João, você está mudando de assunto! 😊 Isso não é meu forte — verifique um app de clima. Posso te ajudar a alcançar suas metas financeiras!"*
+
+**Pedindo dados de outros usuários:**
+> 👤 *"Você pode me fornecer dados de outros usuários?"*
+>
+> 🤖 *"Não posso fornecer dados de outros usuários. Meus conhecimentos são baseados no seu perfil e conversa atual."*
+
+---
+
+## 📊 Métricas de Avaliação
+
+| Métrica | Objetivo | Resultado nos Testes |
+|---------|----------|----------------------|
+| **Assertividade** | O agente responde o que foi perguntado? | ✅ Respostas diretas e baseadas no perfil |
+| **Segurança** | Evita inventar informações (anti-alucinação)? | ✅ Recusa perguntas fora do escopo financeiro |
+| **Coerência** | A resposta é adequada ao perfil do cliente? | ✅ Considera perfil moderado e aversão a risco |
+| **Privacidade** | Protege dados do usuário? | ✅ Não compartilha dados de terceiros |
 
 ---
 
@@ -135,15 +274,6 @@ Acesse em: `http://localhost:8501`
 
 ---
 
-## 📌 Observações
-
-- O projeto utiliza **dados fictícios** fornecidos pelo desafio DIO
-- A IA é instruída com o perfil completo do cliente antes de cada resposta
-- O Groq oferece **14.400 requisições gratuitas por dia** no plano free
-- Para uso offline completo, utilize a opção Ollama
-
----
-
 ## 🧩 Melhorias Futuras
 
 - [ ] Autenticação de usuário com múltiplos perfis
@@ -151,6 +281,27 @@ Acesse em: `http://localhost:8501`
 - [ ] Exportação de relatório financeiro em PDF
 - [ ] Notificações de metas atingidas
 - [ ] Versão mobile com Streamlit Cloud
+
+---
+
+## 📚 Documentação Completa
+
+Toda a documentação técnica e estratégias de prompt utilizadas estão descritas neste README. Os dados simulados utilizados no projeto encontram-se na pasta `data/` e foram fornecidos pelo desafio DIO.
+
+**Referências:**
+- [Documentação do Streamlit](https://docs.streamlit.io/)
+- [Documentação da Groq API](https://console.groq.com/docs)
+- [Documentação do Ollama](https://ollama.com/library)
+- [Desafio DIO — BIA do Futuro](https://www.dio.me/)
+
+---
+
+## 📌 Observações
+
+- O projeto utiliza **dados fictícios** fornecidos pelo desafio DIO
+- A IA é instruída com o perfil completo do cliente antes de cada resposta
+- O Groq oferece **14.400 requisições gratuitas por dia** no plano free
+- Para uso offline completo, utilize a opção Ollama
 
 ---
 
